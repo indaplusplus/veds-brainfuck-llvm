@@ -18,7 +18,6 @@ typedef struct {
     LLVMValueRef getchar_func;
     LLVMBuilderRef builder;
     LLVMValueRef main;
-    LLVMValueRef bf_data;
     LLVMValueRef bf_ptr;
 }Brainfuck;
 
@@ -169,7 +168,7 @@ void llvm_brainfuck_end_loop(Brainfuck *bf, Brainfuck_loop *loop) {
 }
 
 void interprete_brainfuck(char *bf_program, Brainfuck *bf) {
-    Brainfuck_loop loops[1000];
+    Brainfuck_loop loops[1000]; //change to a linked list
     Brainfuck_loop *loop_ptr = loops;
 
     char c;
@@ -200,14 +199,13 @@ void interprete_brainfuck(char *bf_program, Brainfuck *bf) {
             break;
 
             case '[':
-                loop_ptr++;
                 llvm_brainfuck_start_loop(bf, loop_ptr);
-
+                loop_ptr++;
             break;
 
             case ']':
-                llvm_brainfuck_end_loop(bf, loop_ptr);
                 loop_ptr--;
+                llvm_brainfuck_end_loop(bf, loop_ptr);
             break;
         }
         bf_program++;
@@ -266,7 +264,7 @@ void llvm_brainfuck(char *bf_filename) {
      */
     LLVMTypeRef getchar_types[] = {LLVMInt32Type()};
     LLVMTypeRef getchar_type = LLVMFunctionType(
-        LLVMPointerType(LLVMInt32Type(), 0),
+        LLVMInt32Type(),
         getchar_types,
         0,
         0
@@ -284,10 +282,8 @@ void llvm_brainfuck(char *bf_filename) {
     };
 
     LLVMValueRef data_ptr = LLVMBuildCall(builder, calloc, calloc_args, 2, "calloc_data_ptr");
-    bf->bf_data = LLVMBuildAlloca(builder, LLVMPointerType(LLVMInt32Type(), 0), "data");
     bf->bf_ptr = LLVMBuildAlloca(builder, LLVMPointerType(LLVMInt32Type(), 0), "ptr");
 
-    LLVMBuildStore(builder, data_ptr, bf->bf_data);
     LLVMBuildStore(builder, data_ptr, bf->bf_ptr);
 
     char *bf_file_content = read_bf_file(bf_filename);
@@ -295,6 +291,7 @@ void llvm_brainfuck(char *bf_filename) {
 
     LLVMBuildRet(builder, one);
     LLVMWriteBitcodeToFile(module, "brainfuck.bc");
+    
     LLVMDisposeBuilder(builder);
     free(bf_file_content);
 }
