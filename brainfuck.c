@@ -45,7 +45,7 @@ char *read_bf_file(char *filename) {
     fread(buffer, sizeof(char), file_size, f);
 
     //string terminate buffer
-    buffer[file_size + 1] = '\0';
+    buffer[file_size] = '\0';
     fclose(f);
 
     return buffer;
