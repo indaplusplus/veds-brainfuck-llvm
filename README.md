@@ -15,3 +15,9 @@ To compile a brainfuck script, in this case file.bf, run:
 ```
 
 There should now exist a ```bf_cc_output``` binary in your directory.
+
+# Benchmark
+| | Interpreter | LLVM  |
+| ------------- |:-------------:| -----:|
+| Mandelbrot.bf | 82,99s | 1,07s |
+| hanoi.bf | 31,94s | 0,84s |
